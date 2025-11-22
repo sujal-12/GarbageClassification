@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="author" content="Untree.co" />
+  <link rel="shortcut icon" href="templates/favicon.png" />
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="bootstrap, bootstrap5" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="static/fonts/icomoon/style.css" />
+  <link rel="stylesheet" href="static/fonts/flaticon/font/flaticon.css" />
+
+  <link rel="stylesheet" href="static/css/tiny-slider.css" />
+  <link rel="stylesheet" href="static/css/aos.css" />
+  <link rel="stylesheet" href="static/css/style.css" />
+
+  <title>
+    Property &mdash; Free Bootstrap 5 Website Template by Untree.co
+  </title>
+</head>
+
+<body>
+  <div class="site-mobile-menu site-navbar-target">
+    <div class="site-mobile-menu-header">
+      <div class="site-mobile-menu-close">
+        <span class="icofont-close js-menu-toggle"></span>
+      </div>
+    </div>
+    <div class="site-mobile-menu-body"></div>
+  </div>
+
+  <nav class="site-nav">
+    <div class="container">
+      <div class="menu-bg-wrap">
+        <div class="site-navigation">
+          <a href="index.html" class="logo m-0 float-start">Property</a>
+
+          <ul class="js-clone-nav d-none d-lg-inline-block text-start site-menu float-end">
+            <li class="active"><a href="/">Home</a></li>
+            <li><a href="loginform">Login</a></li>
+            <li><a href="registration">Register</a></li>
+          </ul>
+
+          <a href="#"
+            class="burger light me-auto float-end mt-1 site-menu-toggle js-menu-toggle d-inline-block d-lg-none"
+            data-toggle="collapse" data-target="#main-navbar">
+            <span></span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-slide">
+      <div class="img overlay" style="background-image: url('static/images/1.jpg')"></div>
+      <div class="img overlay" style="background-image: url('static/images/2.jpg')"></div>
+      <div class="img overlay" style="background-image: url('static/images/3.jpg')"></div>
+    </div>
+
+    <div class="container">
+      <div class="row justify-content-center align-items-center">
+        <div class="col-lg-9 text-center">
+          <h1 class="heading" data-aos="fade-up">
+            Classify your trash instantly and find the nearest place to recycle it.
+          </h1>
+
+          <div class="narrow-w classification-feature mb-5" data-aos="fade-up" data-aos-delay="200">
+            <p class="lead mb-4 text-white" style="font-size:20px;">
+              Upload a picture of your waste to instantly classify it as Recyclable or Non-Recyclable.
+            </p>
+            <div class="d-flex justify-content-center align-items-center">
+              <label for="image-upload" class="btn btn-primary btn-lg me-3">
+                Upload Waste Image
+              </label>
+              <button class="btn btn-primary btn-lg ms-3">
+                Use Camera
+              </button>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preloader -->
+  <div id="overlayer"></div>
+  <div class="loader">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <script src="static/js/bootstrap.bundle.min.js"></script>
+  <script src="static/js/tiny-slider.js"></script>
+  <script src="static/js/aos.js"></script>
+  <script src="static/js/navbar.js"></script>
+  <script src="static/js/counter.js"></script>
+  <script src="static/js/custom.js"></script>
+
+  {% for message in messages %}
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+{% if message.tags == 'success' %}
+<script>
+  swal("Success!", "{{ message }}", "success");
+</script>
+
+{% elif message.tags == 'error' %}
+<script>
+  swal("Error!", "{{ message }}", "error");
+</script>
+
+{% elif message.tags == 'info' %}
+<script>
+  swal("Alert!", "{{ message }}", "info");
+</script>
+
+{% endif %}
+{% endfor %}
+
+</body>
+
+</html>

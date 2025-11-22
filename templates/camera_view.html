@@ -1,0 +1,169 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Live Camera Analysis — Property</title>
+
+    <link rel="stylesheet" href="{% static 'fonts/icomoon/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    
+    <style>
+        body {
+            background-color: #000000;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .camera-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        #video-feed {
+            object-fit: contain;
+            width: 100%;
+            max-height: 100vh;
+            display: block;
+        }
+
+        /* Top Back Button */
+        .overlay-controls {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px;
+            z-index: 10;
+            text-align: left;
+        }
+
+        .overlay-controls a.btn {
+            background-color: rgba(255, 255, 255, 0.5);
+            border: none;
+            color: #005555;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        /* Bottom "Go to Results" Button */
+        .bottom-action {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999;
+        }
+
+        .bottom-action a.btn {
+            background-color: #28a745;
+            color: white;
+            padding: 14px 32px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .bottom-action a.btn:hover {
+            background-color: #218838;
+            transform: translateX(-50%) scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .bottom-action a.btn:active {
+            transform: translateX(-50%) scale(0.98);
+        }
+
+        /* Optional: Flash green when detection is saved */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(40, 167, 69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+        }
+
+        .detected {
+            animation: pulse 2s ease-out;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Top Left: Back Button -->
+    <div class="overlay-controls">
+        <a href="{% url 'dashboard' %}" class="btn">
+            Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Camera Feed -->
+    <div class="camera-container">
+        <img id="video-feed" src="{% url 'camera_feed' %}" alt="Live Waste Detection Feed" />
+    </div>
+
+    <!-- Bottom Center: Go to Results Button -->
+    <div class="bottom-action">
+        <a href="{% url 'goto_results_from_camera' %}" class="btn btn-success btn-lg" id="go-to-results-btn">
+            Go to Results
+        </a>
+    </div>
+
+    <!-- Loader -->
+    <div id="overlayer" style="display:none;"></div>
+    <div class="loader" id="loader">
+        <div class="spinner-border text-light" role="status">
+            <span class="visually-hidden">Loading Camera...</span>
+        </div>
+    </div>
+
+    <div style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; padding: 10px; border-radius: 8px;">
+    {% if latest_detection.saved %}
+        Latest: <strong>{{ latest_detection.label }}</strong> ({{ latest_detection.confidence|floatformat:1 }}%)
+    {% else %}
+        Detecting...
+    {% endif %}
+</div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const loader = document.getElementById('loader');
+            const goBtn = document.getElementById('go-to-results-btn');
+
+            // Hide loader after 3 seconds (camera init time)
+            setTimeout(() => {
+                loader.style.display = 'none';
+            }, 3000);
+
+            // Optional: Visual feedback when detection is saved (you can trigger this via JS if needed)
+            // For now, we just make the button pulse if URL has a param or via session
+            {% if messages %}
+                {% for message in messages %}
+                    {% if 'detected' in message.message or 'success' in message.tags %}
+                        goBtn.classList.add('detected');
+                        goBtn.innerHTML = "Detected! View Results";
+                        goBtn.style.backgroundColor = "#218838";
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        });
+    </script>
+</body>
+
+</html>

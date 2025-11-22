@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Waste Classification Report - {{ prediction.label }}</title>
+    <style>
+        @font-face {
+            font-family: 'DejaVu Sans';
+            src: url('https://cdn.jsdelivr.net/gh/googlefonts/dejavu-sans@master/ttf/DejaVuSans.ttf') format('truetype');
+        }
+        body {
+            font-family: 'DejaVu Sans', Arial, sans-serif;
+            margin: 40px 50px;
+            color: #2d3436;
+            line-height: 1.7;
+            background: #f8fafc;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 5px double #10b981;
+            padding-bottom: 25px;
+            margin-bottom: 35px;
+        }
+        .logo {
+            height: 80px;
+            margin-bottom: 15px;
+        }
+        .header h1 {
+            color: #065f46;
+            margin: 10px 0;
+            font-size: 32px;
+            font-weight: 700;
+        }
+        .header p {
+            color: #64748b;
+            font-size: 16px;
+        }
+        .report-id {
+            text-align: right;
+            color: #64748b;
+            font-size: 13px;
+            margin-top: -20px;
+        }
+        .section {
+            margin: 35px 0;
+            padding: 20px;
+            background: #f8fffe;
+            border-radius: 12px;
+            border-left: 6px solid #10b981;
+        }
+        h2 {
+            color: #065f46;
+            font-size: 22px;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .img-box {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: white;
+            border: 3px solid #10b981;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(16,185,129,0.1);
+        }
+        .img-box img {
+            max-width: 380px;
+            max-height: 380px;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+        th {
+            background: #065f46;
+            color: white;
+            padding: 14px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 14px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .badge {
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .yes { background: #d1fae5; color: #065f46; }
+        .no { background: #fef3c7; color: #92400e; }
+        .conditional { background: #dbeafe; color: #1e40af; }
+        .center-card {
+            background: white;
+            padding: 18px;
+            margin: 12px 0;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .center-card h4 {
+            margin: 0 0 8px 0;
+            color: #065f46;
+            font-size: 17px;
+        }
+        .footer {
+            margin-top: 60px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px dashed #94a3b8;
+            color: #64748b;
+            font-size: 13px;
+        }
+        .qr {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .qr img {
+            width: 120px;
+            height: 120px;
+            border: 8px solid white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- Header -->
+    <div class="header">
+        <!-- Replace with your logo -->
+        <img src="https://via.placeholder.com/200x80/10b981/white?text=♻+Nashik+Smart+Waste" alt="Logo" class="logo">
+        <h1>Waste Classification Report</h1>
+        
+    </div>
+
+    <!-- Uploaded Image -->
+    <div class="section">
+        <div class="img-box">
+            <img src="{{ prediction.image_url }}" alt="Scanned Waste">
+        </div>
+        <p style="text-align:center; color:#64748b;">
+            <strong>File:</strong> {{ prediction.image_filename }}<br>
+            <strong>Scanned on:</strong> {{ now|date:"d M Y \a\t H:i" }}
+        </p>
+    </div>
+
+    <!-- AI Result -->
+    <div class="section">
+        <h2>AI Classification Result</h2>
+        <table>
+            <tr><th width="40%">Parameter</th><th>Result</th></tr>
+            <tr><td>Detected Category</td><td><strong style="font-size:24px; color:#10b981;">{{ prediction.label }}</strong></td></tr>
+            <tr><td>AI Confidence Level</td><td>{{ prediction.confidence }}%</td></tr>
+            <tr><td>Recyclable Status</td><td>
+                {% if recycling_info.recyclable == "Yes" %}
+                    <span class="badge yes">YES – FULLY RECYCLABLE</span>
+                {% elif recycling_info.recyclable == "Conditional" %}
+                    <span class="badge conditional">CONDITIONAL</span>
+                {% else %}
+                    <span class="badge no">NO – NON-RECYCLABLE</span>
+                {% endif %}
+            </td></tr>
+        </table>
+    </div>
+
+    <!-- Instructions -->
+    <div class="section">
+        <h2>Recycling Instructions</h2>
+        <div style="background:#ecfdf5; padding:20px; border-radius:10px; border:1px solid #86efac;">
+            <p style="margin:0; font-size:16px;">
+                <strong>For {{ prediction.label|lower }} waste:</strong><br><br>
+                {{ recycling_info.advice }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Recycling Centers (Real & Updated 2025) -->
+    <div class="section">
+        <h2>Authorized Recycling Centers in Nashik</h2>
+        <p style="color:#64748b; font-size:14px; margin-bottom:20px;">
+            Drop your sorted waste at any of these verified facilities:
+        </p>
+
+        {% for c in nashik_centers %}
+            <div class="center-card">
+                <h4>{{ c.name }} {% if c.verified %}Verified{% endif %}</h4>
+                <p style="margin:5px 0; color:#475569;">
+                    <strong>Address:</strong> {{ c.address }}<br>
+                    {% if c.contact != "N/A" %}
+                        <strong>Contact:</strong> {{ c.contact }}<br>
+                    {% endif %}
+                    {% if c.timing %}<small>Timing: {{ c.timing }}</small>{% endif %}
+                </p>
+            </div>
+        {% empty %}
+            <p>No centers available for this category.</p>
+        {% endfor %}
+    </div>
+
+    <!-- QR Code & Footer -->
+</div>
+</body>
+</html>

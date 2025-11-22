@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waste Classification Report - {{ prediction.label }}</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', 'DejaVu Sans', sans-serif; background:#f7f9fb; color:#1f2937; margin:0; padding:20px; }
+        .container { max-width:900px; margin:0 auto; background:white; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.1); overflow:hidden; }
+        .header { background:linear-gradient(135deg,#10b981,#059669); color:white; padding:20px 30px; text-align:center; }
+        .btn { display:inline-flex; align-items:center; padding:10px 20px; border-radius:8px; font-weight:600; text-decoration:none; }
+        .btn-back { background:white; color:#374151; }
+        .btn-back:hover { background:#f3f4f6; }
+        .btn-pdf { background:#dc2626; color:white; }
+        .btn-pdf:hover { background:#b91c1c; }
+        .content { padding:30px; }
+        .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:30px; margin-bottom:30px; }
+        @media (max-width:768px) { .grid-2 { grid-template-columns:1fr; } }
+        .card { background:#f9fafb; padding:20px; border-radius:10px; border-left:5px solid #10b981; }
+        .info-box { background:#ecfdf5; padding:20px; border-radius:10px; border:1px solid #86efac; }
+        .center-box { background:#ecfdf5; padding:20px; border-radius:10px; margin-bottom:15px; border-left:4px solid #059669; }
+        img.uploaded-img { max-width:100%; max-height:400px; object-fit:contain; border-radius:10px; border:2px solid #e5e7eb; }
+        @page { margin:1cm; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1 style="margin:0; font-size:28px;">Waste Classification Report</h1>
+        <p style="margin:10px 0 20px; opacity:0.9; font-size:16px;">
+            Category: <strong>{{ prediction.label }}</strong> | Confidence: <strong>{{ prediction.confidence }}%</strong>
+        </p>
+        <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap;">
+            <a href="{% url 'dashboard' %}" class="btn btn-back">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-right:8px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                Back to Dashboard
+            </a>
+            <a href="{% url 'download_pdf' %}" class="btn btn-pdf">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-right:8px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                Download PDF Report
+            </a>
+        </div>
+    </div>
+
+    <div class="content">
+
+        {% if messages %}
+            <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+            <script>
+                {% for message in messages %}
+                    swal({title:"{{ message.tags|capfirst }}", text:"{{ message|safe }}", icon:"{{ message.tags }}"});
+                {% endfor %}
+            </script>
+        {% endif %}
+
+        <div class="grid-2">
+            <div>
+                <h2 style="font-size:20px; margin-bottom:15px; color:#1f2937;">Uploaded Image</h2>
+                <div style="text-align:center; background:#f3f4f6; padding:15px; border-radius:12px;">
+                    {% if prediction.image_url %}
+                        <img src="{{ prediction.image_url }}" alt="Uploaded waste item" class="uploaded-img"
+                             onerror="this.onerror=null; this.src='https://placehold.co/600x400/e0f2f7/065f46?text=Image+Not+Found';">
+                    {% else %}
+                        <img src="https://placehold.co/600x400/e0f2f7/065f46?text=No+Image" class="uploaded-img">
+                    {% endif %}
+                    <p style="margin-top:10px; color:#6b7280; font-size:14px;">
+                        File: {{ prediction.image_filename|default:"Unknown" }}
+                    </p>
+                </div>
+            </div>
+
+            
+
+            <div>
+                <h2 style="font-size:20px; margin-bottom:15px; color:#1f2937;">Analysis Summary</h2>
+                <div class="card">
+                    <p><strong>Predicted Category:</strong> <span style="font-size:24px; color:#059669;">{{ prediction.label }}</span></p>
+                    <p><strong>Confidence Score:</strong> <span style="color:#1d4ed8;">{{ prediction.confidence }}%</span></p>
+                    <p><strong>Recyclable:</strong>
+                        {% if recycling_info.recyclable|lower == "yes" %}
+                            <span style="padding:4px 12px; border-radius:6px; background:#d1fae5; color:#065f46; font-weight:600;">{{ recycling_info.recyclable }}</span>
+                        {% else %}
+                            <span style="padding:4px 12px; border-radius:6px; background:#fef3c7; color:#92400e; font-weight:600;">{{ recycling_info.recyclable }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-box" style="margin-bottom:30px;">
+            <h2 style="display:flex; align-items:center; font-size:22px; margin-bottom:15px; color:#065f46;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-right:12px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                </svg>
+                Recycling Guidance
+            </h2>
+            <p style="font-size:16px; line-height:1.7;">
+                <strong>For {{ prediction.label|lower }}:</strong><br>{{ recycling_info.advice }}
+            </p>
+        </div>
+
+        <div style="background:#ecfdf5; padding:25px; border-radius:12px; border:2px solid #86efac;">
+            <h2 style="display:flex; align-items:center; font-size:22px; margin-bottom:20px; color:#065f46;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-right:12px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                Suggested Recycling Centers in Nashik
+            </h2>
+            {% for center in nashik_centers %}
+                <div class="center-box">
+                    <h3 style="margin:0 0 8px; color:#064e3b; font-size:18px;">{{ center.name }}</h3>
+                    <p style="margin:4px 0;"><strong>Address:</strong> {{ center.address }}</p>
+                    {% if center.contact != "N/A" %}
+                        <p style="margin:4px 0;"><strong>Contact:</strong> {{ center.contact }}</p>
+                    {% endif %}
+                </div>
+            {% empty %}
+                <p style="color:#6b7280;">No specific recycling centers listed for this category in Nashik.</p>
+            {% endfor %}
+        </div>
+
+        <div style="margin-top:40px; text-align:center; color:#6b7280; font-size:14px;">
+            Report generated on {{ now|date:"d M Y \\a\\t H:i" }} | Powered by AI Waste Classifier
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
